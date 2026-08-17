@@ -1,4 +1,4 @@
-output "tierapp_db_policy_path" {
-  description = "NSX policy path of the acme-db DFW security policy"
-  value       = nsxt_policy_security_policy.tierapp_db.path
+output "allow_acme_egress_to_database_path" {
+  description = "NSX policy path of the allow_acme_egress_to_database rule"
+  value       = nsxt_policy_security_policy_rule.allow_acme_egress_to_database.path
 }

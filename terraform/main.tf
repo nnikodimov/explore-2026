@@ -1,12 +1,25 @@
-# Both modules inherit the single nsxt provider instance configured in
-# provider.tf - neither declares its own provider block.
-
-module "antrea_policy" {
-  source = "./antrea-policy"
+# Applied first: the ACNP and acme-db parent policies, the acme-ns/acme-db
+# groups, the Antrea cluster attachment, and the DROP/lockdown rules for
+# both policies.
+module "baseline" {
+  source = "./baseline"
 
   antrea_cluster_id = var.antrea_cluster_id
 }
 
+# Amends the ACNP ALLOW rules onto the parent policy created above. Owns its
+# own frontend/backend groups.
+module "antrea_policy" {
+  source = "./antrea-policy"
+
+  policy_path = module.baseline.tierapp_policy_path
+}
+
+# Amends the database DFW ALLOW rule onto the parent policy created above.
+# Owns its own egress group; the destination db group comes from baseline.
 module "database_policy" {
   source = "./database-policy"
+
+  policy_path   = module.baseline.tierapp_db_policy_path
+  db_group_path = module.baseline.tierapp_db_group_path
 }

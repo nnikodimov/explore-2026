@@ -2,23 +2,30 @@
 
 NSX-T policies for the acme workload. The [terraform/](terraform/) folder
 is the Terraform root module - it configures the single `nsxt` provider
-instance ([terraform/provider.tf](terraform/provider.tf)) and calls two child
-modules, split out so each policy can be reasoned about and applied
+instance ([terraform/provider.tf](terraform/provider.tf)) and calls three
+child modules, split out so each can be reasoned about and applied
 independently:
 
-- [terraform/antrea-policy/](terraform/antrea-policy/) - the ACNP (Antrea
-  Cluster Network Policy) governing pod-to-pod traffic inside the Kubernetes
-  cluster.
-- [terraform/database-policy/](terraform/database-policy/) - the DFW policy
-  locking down the VM-based database tier.
+- [terraform/baseline/](terraform/baseline/) - creates the ACNP and acme-db
+  parent policies, their groups, the Antrea cluster attachment, and locks
+  both policies down with a default-deny DROP rule. Applied first.
+- [terraform/antrea-policy/](terraform/antrea-policy/) - amends the ACNP
+  ALLOW rules (frontend/backend pod-to-pod traffic) onto the parent policy
+  created in `baseline`.
+- [terraform/database-policy/](terraform/database-policy/) - amends the DFW
+  ALLOW rule (egress to the database tier) onto the parent policy created in
+  `baseline`.
 
-Both modules inherit the root's provider configuration automatically -
-neither declares its own `provider` block. Run Terraform from the
-`terraform/` folder. To apply the two policies one after another against the
-shared state, target each module in turn:
+`antrea-policy` and `database-policy` never create their own policies - they
+attach rules to the policies from `baseline` via its outputs, which is what
+makes `baseline` apply first. All three modules inherit the root's provider
+configuration automatically - none declares its own `provider` block. Run
+Terraform from the `terraform/` folder. To apply them one after another
+against the shared state, target each module in turn:
 
 ```
 cd terraform
-terraform apply -target=module.antrea_policy   # frontend/backend allow rules first
-terraform apply                                 # then database_policy (and anything else pending)
+terraform apply -target=module.baseline         # parent policies + lockdown rules first
+terraform apply -target=module.antrea_policy    # then the ACNP allow rules
+terraform apply                                  # then database_policy (and anything else pending)
 ```

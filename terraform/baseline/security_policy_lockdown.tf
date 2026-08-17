@@ -1,0 +1,71 @@
+# Baseline: creates the ACNP and acme-db parent policies (plus their groups
+# and, for the ACNP, its Antrea cluster attachment), and locks both down with
+# a default-deny DROP rule. ../antrea-policy and ../database-policy are
+# applied afterwards, amending their ALLOW rules onto these same policies via
+# policy_path - they never create the policies themselves.
+#
+# Split across nsxt_policy_parent_security_policy + nsxt_policy_security_policy_rule
+# because nsxt_policy_security_policy_container_cluster can only attach to a
+# "parent" policy, not the combined nsxt_policy_security_policy resource, and
+# because the ALLOW rules amended in from the other two modules need an
+# independent policy_path to attach to.
+
+resource "nsxt_policy_parent_security_policy" "tierapp" {
+  display_name = "acme_policy"
+  description  = "acme K8s policy"
+  category     = "Application"
+  stateful     = true
+  tcp_strict   = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "nsxt_policy_security_policy_container_cluster" "tierapp" {
+  display_name           = "acme-cluster-span"
+  description            = "Antrea container cluster span for acme_policy"
+  policy_path            = nsxt_policy_parent_security_policy.tierapp.path
+  container_cluster_path = data.nsxt_policy_container_cluster.tierapp.path
+}
+
+# Priority order matches the export's ascending sequenceNumber: this DROP
+# rule (499999) is the last ACNP rule - allow_acme_frontend (249999) and
+# allow_acme_frontend_to_backend (374999) in ../antrea-policy are evaluated
+# first.
+
+resource "nsxt_policy_security_policy_rule" "lockdown_acme_namespace" {
+  display_name    = "lockdown_acme_namespace"
+  description     = "lockdown acme namespace"
+  policy_path     = nsxt_policy_parent_security_policy.tierapp.path
+  sequence_number = 3
+  action          = "DROP"
+  direction       = "IN"
+  scope           = [nsxt_policy_group.tierapp_ns.path]
+}
+
+resource "nsxt_policy_parent_security_policy" "tierapp_db" {
+  display_name = "acme-db_policy"
+  description  = "acme-db policy"
+  category     = "Application"
+  stateful     = true
+  tcp_strict   = true
+  scope        = [nsxt_policy_group.tierapp_db.path]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Priority order matches the export's ascending sequenceNumber: this DROP
+# rule (749999) comes after allow_acme_egress_to_database (499999) in
+# ../database-policy.
+
+resource "nsxt_policy_security_policy_rule" "lockdown_database" {
+  display_name    = "lockdown_database"
+  description     = "lockdown database"
+  policy_path     = nsxt_policy_parent_security_policy.tierapp_db.path
+  sequence_number = 2
+  action          = "DROP"
+  direction       = "IN"
+}
