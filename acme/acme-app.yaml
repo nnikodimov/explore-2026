@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: frontend-app-secret
+type: Opaque
+data:
+  #api_url: <BASE64_ENCODED_IP:PORT_FOR_backend-app-service>
+  #api_url: MTcyLjIwLjYzLjIwNzo1MDAw
+  api_url: YmFja2VuZC1hcHAtc2VydmljZS5hY21lLnN2Yy52a3MwMS52Y2YwMS5hbnMubGFiOjUwMDA=
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app-deployment
+  labels:
+    app: frontend-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: frontend-app
+          image: quay.io/nnikodimov/developer-utilities-frontend
+          ports:
+            - containerPort: 5000
+          env:
+          - name: API_URL
+            valueFrom:
+              secretKeyRef:
+                name: frontend-app-secret
+                key: api_url
+                optional: false
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-app-service
+spec:
+  selector:
+    app: frontend-app
+  ports:
+    - name: web-app-port
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-app-secret
+type: Opaque
+data:
+  mysql_user: ZGV2b3Bz
+  db_passwd: Vk13YXJlMSE=
+  mysql_host: M3RpZXJhcHAtZGIudmNmMDEuYW5zLmxhYg==
+  db_name: ZGVtbw==
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-app-deployment
+  labels:
+    app: backend-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-app
+  template:
+    metadata:
+      labels:
+        app: backend-app
+    spec:
+      containers:
+        - name: backend-app
+          image: quay.io/nnikodimov/developer-utilities-backend
+          ports:
+            - containerPort: 5000
+          env:
+          - name: MYSQL_HOST
+            valueFrom:
+              secretKeyRef:
+                name: backend-app-secret
+                key: mysql_host
+                optional: false
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: backend-app-secret
+                key: mysql_user
+                optional: false
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: backend-app-secret
+                key: db_passwd
+                optional: false
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: backend-app-secret
+                key: db_name
+                optional: false
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-app-service
+spec:
+  selector:
+    app: backend-app
+  ports:
+    - name: web-app-port
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+
+---
+
+apiVersion: crd.antrea.io/v1beta1
+kind: Egress
+metadata:
+  name: acme-egress
+  labels:
+    app: backend-app
+spec:
+  appliedTo:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: acme
+    podSelector:
+      matchLabels:
+        app: backend-app
+  externalIPPool: external-ip-pool-01
