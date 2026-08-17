@@ -1,6 +1,6 @@
 variable "antrea_cluster_id" {
   description = <<-EOT
-    NSX Container Cluster ID for the Antrea/Kubernetes cluster the acme ACNP is
+    NSX Container Cluster ID for the Antrea/Kubernetes cluster the alpha ACNP is
     bound to. Defaults to the ID parsed out of the source export's
     containerClusterPath (.../cluster-control-planes/<id>). Override if reapplying
     against a different cluster/environment.

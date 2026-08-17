@@ -1,4 +1,4 @@
-# Applied first: the ACNP and acme-db parent policies, the acme-ns/acme-db
+# Applied first: the ACNP and alpha-db parent policies, the alpha-ns/alpha-db
 # groups, the Antrea cluster attachment, and the DROP/lockdown rules for
 # both policies.
 module "baseline" {

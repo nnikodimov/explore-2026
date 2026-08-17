@@ -9,10 +9,10 @@
 # by the ALLOW rules live alongside those rules in ../antrea-policy and
 # ../database-policy.
 
-# Whole "acme" Kubernetes namespace - used as the ANTREA policy's default-deny scope.
+# Whole "alpha" Kubernetes namespace - used as the ANTREA policy's default-deny scope.
 resource "nsxt_policy_group" "tierapp_ns" {
-  display_name = "acme-ns"
-  description  = "PLACEHOLDER criteria - verify against real NSX group. All members of the acme Kubernetes namespace."
+  display_name = "alpha-ns"
+  description  = "PLACEHOLDER criteria - verify against real NSX group. All members of the alpha Kubernetes namespace."
   group_type   = "ANTREA"
 
   criteria {
@@ -20,22 +20,22 @@ resource "nsxt_policy_group" "tierapp_ns" {
       key         = "Name"
       member_type = "Namespace"
       operator    = "EQUALS"
-      value       = "acme"
+      value       = "alpha"
     }
   }
 }
 
 # VM-based database tier, matched by VM name.
 resource "nsxt_policy_group" "tierapp_db" {
-  display_name = "acme-db"
-  description  = "PLACEHOLDER criteria - verify against real NSX group. acme database VMs."
+  display_name = "alpha-db"
+  description  = "PLACEHOLDER criteria - verify against real NSX group. alpha database VMs."
 
   criteria {
     condition {
       key         = "Name"
       member_type = "VirtualMachine"
       operator    = "EQUALS"
-      value       = "acme-db"
+      value       = "alpha-db"
     }
   }
 }

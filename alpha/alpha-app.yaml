@@ -134,14 +134,14 @@ spec:
 apiVersion: crd.antrea.io/v1beta1
 kind: Egress
 metadata:
-  name: acme-egress
+  name: alpha-egress
   labels:
     app: backend-app
 spec:
   appliedTo:
     namespaceSelector:
       matchLabels:
-        kubernetes.io/metadata.name: acme
+        kubernetes.io/metadata.name: alpha
     podSelector:
       matchLabels:
         app: backend-app
