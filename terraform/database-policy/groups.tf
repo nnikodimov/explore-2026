@@ -6,11 +6,12 @@
 # wrong criteria here means the policy binds to the wrong workloads.
 
 # Antrea Egress object used as the SNAT identity when acme pods leave the
-# cluster to reach the VM-based database tier.
+# cluster to reach the VM-based database tier. AntreaEgress is not part of
+# the ANTREA group_type's supported member types ([Namespace, IPAddress,
+# Service, Pod]), so this must be a generic group (no group_type set).
 resource "nsxt_policy_group" "tierapp_egress" {
   display_name = "acme-egress"
   description  = "PLACEHOLDER criteria - verify against real NSX group. acme Antrea Egress."
-  group_type   = "ANTREA"
 
   criteria {
     condition {
@@ -22,17 +23,17 @@ resource "nsxt_policy_group" "tierapp_egress" {
   }
 }
 
-# VM-based database tier, matched by tag (scope "acme", tag "db").
+# VM-based database tier, matched by VM name.
 resource "nsxt_policy_group" "tierapp_db" {
   display_name = "acme-db"
   description  = "PLACEHOLDER criteria - verify against real NSX group. acme database VMs."
 
   criteria {
     condition {
-      key         = "Tag"
+      key         = "Name"
       member_type = "VirtualMachine"
       operator    = "EQUALS"
-      value       = "acme|db"
+      value       = "3tierapp-db"
     }
   }
 }
