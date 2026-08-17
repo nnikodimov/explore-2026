@@ -1,11 +1,11 @@
-# ACNP: Antrea/Kubernetes-targeted policy for the 3tierapp cluster.
+# ACNP: Antrea/Kubernetes-targeted policy for the acme cluster.
 # Split across nsxt_policy_parent_security_policy + nsxt_policy_security_policy_rule
 # because nsxt_policy_security_policy_container_cluster can only attach to a
 # "parent" policy, not the combined nsxt_policy_security_policy resource.
 
 resource "nsxt_policy_parent_security_policy" "tierapp" {
-  display_name = "3tierapp_policy"
-  description  = "3tierapp K8s policy"
+  display_name = "acme_policy"
+  description  = "acme K8s policy"
   category     = "Application"
   stateful     = true
   tcp_strict   = true
@@ -16,19 +16,19 @@ resource "nsxt_policy_parent_security_policy" "tierapp" {
 }
 
 resource "nsxt_policy_security_policy_container_cluster" "tierapp" {
-  display_name           = "3tierapp-cluster-span"
-  description            = "Antrea container cluster span for 3tierapp_policy"
+  display_name           = "acme-cluster-span"
+  description            = "Antrea container cluster span for acme_policy"
   policy_path            = nsxt_policy_parent_security_policy.tierapp.path
   container_cluster_path = data.nsxt_policy_container_cluster.tierapp.path
 }
 
 # Priority order below matches the export's ascending sequenceNumber (lower =
-# higher priority, evaluated first): allow_3tierapp_frontend (249999),
-# allow_3tierapp_frontend_to_backend (374999), lockdown_3tierapp_namespace (499999).
+# higher priority, evaluated first): allow_acme_frontend (249999),
+# allow_acme_frontend_to_backend (374999), lockdown_acme_namespace (499999).
 
-resource "nsxt_policy_security_policy_rule" "allow_3tierapp_frontend" {
-  display_name    = "allow_3tierapp_frontend"
-  description     = "allow 3tierapp frontend"
+resource "nsxt_policy_security_policy_rule" "allow_acme_frontend" {
+  display_name    = "allow_acme_frontend"
+  description     = "allow acme frontend"
   policy_path     = nsxt_policy_parent_security_policy.tierapp.path
   sequence_number = 1
   action          = "ALLOW"
@@ -43,9 +43,9 @@ resource "nsxt_policy_security_policy_rule" "allow_3tierapp_frontend" {
   }
 }
 
-resource "nsxt_policy_security_policy_rule" "allow_3tierapp_frontend_to_backend" {
-  display_name    = "allow_3tierapp_frontend_to_backend"
-  description     = "allow 3tierapp frontend to backend"
+resource "nsxt_policy_security_policy_rule" "allow_acme_frontend_to_backend" {
+  display_name    = "allow_acme_frontend_to_backend"
+  description     = "allow acme frontend to backend"
   policy_path     = nsxt_policy_parent_security_policy.tierapp.path
   sequence_number = 2
   action          = "ALLOW"
@@ -61,9 +61,9 @@ resource "nsxt_policy_security_policy_rule" "allow_3tierapp_frontend_to_backend"
   }
 }
 
-resource "nsxt_policy_security_policy_rule" "lockdown_3tierapp_namespace" {
-  display_name    = "lockdown_3tierapp_namespace"
-  description     = "lockdown 3tierapp namespace"
+resource "nsxt_policy_security_policy_rule" "lockdown_acme_namespace" {
+  display_name    = "lockdown_acme_namespace"
+  description     = "lockdown acme namespace"
   policy_path     = nsxt_policy_parent_security_policy.tierapp.path
   sequence_number = 3
   action          = "DROP"

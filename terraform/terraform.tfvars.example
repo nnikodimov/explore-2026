@@ -1,10 +1,8 @@
-# Copy to terraform.tfvars (gitignored) and fill in, or supply via
-# TF_VAR_nsx_manager_host / TF_VAR_nsx_username / TF_VAR_nsx_password env vars instead.
+# Copy to terraform.tfvars (gitignored) and fill in.
 
 nsx_manager_host     = "nsx-manager.example.com"
 nsx_username         = "admin"
-# nsx_password should come from an env var (TF_VAR_nsx_password) or a secrets
-# manager, not committed here.
+nsx_password         = "changeme"
 allow_unverified_ssl = false
 
 # Override only if reapplying against a different Antrea/Kubernetes cluster than

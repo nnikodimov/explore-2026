@@ -1,10 +1,10 @@
-# Regular DFW policy protecting the VM-based 3tierapp database tier. No container
+# Regular DFW policy protecting the VM-based acme database tier. No container
 # cluster association is needed here, so the combined resource (policy + inline
 # rules) is used instead of the parent/rule split used for the ACNP.
 
 resource "nsxt_policy_security_policy" "tierapp_db" {
-  display_name = "3tierapp-db_policy"
-  description  = "3tierapp-db policy"
+  display_name = "acme-db_policy"
+  description  = "acme-db policy"
   category     = "Application"
   stateful     = true
   tcp_strict   = true
@@ -14,8 +14,8 @@ resource "nsxt_policy_security_policy" "tierapp_db" {
   # (499999) is evaluated before the lockdown default-deny (749999).
 
   rule {
-    display_name       = "allow_3tierapp_egress_to_database"
-    description        = "allow 3tierapp egress to database"
+    display_name       = "allow_acme_egress_to_database"
+    description        = "allow acme egress to database"
     action             = "ALLOW"
     direction          = "IN"
     source_groups      = [nsxt_policy_group.tierapp_egress.path]

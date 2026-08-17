@@ -1,14 +1,14 @@
 # NOTE: The source DFW export only contains SecurityPolicy/Rule/ContainerCluster
 # rows, not Group definitions - it references these groups by path only. The
 # criteria below are BEST-EFFORT, inferred from the group names and how they're
-# used in security_policy_3tierapp.tf.
+# used in security_policy_acme.tf.
 # Verify each one against the real group definitions in NSX Manager before apply -
 # wrong criteria here means the policy binds to the wrong workloads.
 
-# Whole "3tierapp" Kubernetes namespace - used as the ANTREA policy's default-deny scope.
+# Whole "acme" Kubernetes namespace - used as the ANTREA policy's default-deny scope.
 resource "nsxt_policy_group" "tierapp_ns" {
-  display_name = "3tierapp-ns"
-  description  = "PLACEHOLDER criteria - verify against real NSX group. All members of the 3tierapp Kubernetes namespace."
+  display_name = "acme-ns"
+  description  = "PLACEHOLDER criteria - verify against real NSX group. All members of the acme Kubernetes namespace."
   group_type   = "ANTREA"
 
   criteria {
@@ -16,15 +16,15 @@ resource "nsxt_policy_group" "tierapp_ns" {
       key         = "Name"
       member_type = "Namespace"
       operator    = "EQUALS"
-      value       = "3tierapp"
+      value       = "acme"
     }
   }
 }
 
-# Frontend Kubernetes Service in the 3tierapp namespace.
+# Frontend Kubernetes Service in the acme namespace.
 resource "nsxt_policy_group" "tierapp_frontend_svc" {
-  display_name = "3tierapp-frontend-svc"
-  description  = "PLACEHOLDER criteria - verify against real NSX group. 3tierapp frontend Service."
+  display_name = "acme-frontend-svc"
+  description  = "PLACEHOLDER criteria - verify against real NSX group. acme frontend Service."
   group_type   = "ANTREA"
 
   criteria {
@@ -37,10 +37,10 @@ resource "nsxt_policy_group" "tierapp_frontend_svc" {
   }
 }
 
-# Backend Kubernetes Service in the 3tierapp namespace.
+# Backend Kubernetes Service in the acme namespace.
 resource "nsxt_policy_group" "tierapp_backend" {
-  display_name = "3tierapp-backend"
-  description  = "PLACEHOLDER criteria - verify against real NSX group. 3tierapp backend Service."
+  display_name = "acme-backend"
+  description  = "PLACEHOLDER criteria - verify against real NSX group. acme backend Service."
   group_type   = "ANTREA"
 
   criteria {
