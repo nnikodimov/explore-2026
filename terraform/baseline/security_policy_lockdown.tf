@@ -11,12 +11,12 @@
 # independent policy_path to attach to.
 
 resource "nsxt_policy_parent_security_policy" "tierapp" {
-  display_name = "acme-vks_policy"
-  description  = "acme K8s policy"
+  display_name = "acme_vks_policy"
+  description  = "acme_vks_policy"
   category     = "Application"
   stateful     = true
   tcp_strict   = true
-
+  sequence_number = 10
   lifecycle {
     create_before_destroy = true
   }
@@ -38,19 +38,19 @@ resource "nsxt_policy_security_policy_rule" "lockdown_acme_namespace" {
   display_name    = "lockdown_acme_namespace"
   description     = "lockdown acme namespace"
   policy_path     = nsxt_policy_parent_security_policy.tierapp.path
-  sequence_number = 10
+  sequence_number = 666
   action          = "DROP"
   direction       = "IN"
   scope           = [nsxt_policy_group.tierapp_ns.path]
 }
 
 resource "nsxt_policy_parent_security_policy" "tierapp_db" {
-  display_name = "acme-db_policy"
-  description  = "acme-db policy"
+  display_name = "acme_db_policy"
+  description  = "acme_db policy"
   category     = "Application"
   stateful     = true
   tcp_strict   = true
-
+  sequence_number = 20
   lifecycle {
     create_before_destroy = true
   }
@@ -65,7 +65,7 @@ resource "nsxt_policy_security_policy_rule" "lockdown_database" {
   description     = "lockdown database"
   policy_path     = nsxt_policy_parent_security_policy.tierapp_db.path
   scope           = [nsxt_policy_group.tierapp_db.path]
-  sequence_number = 20
+  sequence_number = 666
   action          = "DROP"
   direction       = "IN"
 }
