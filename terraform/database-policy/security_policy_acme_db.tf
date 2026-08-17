@@ -15,4 +15,5 @@ resource "nsxt_policy_security_policy_rule" "allow_acme_egress_to_database" {
   source_groups      = [nsxt_policy_group.tierapp_egress.path]
   destination_groups = [var.db_group_path]
   services           = [data.nsxt_policy_service.mysql.path]
+  scope              = [var.db_group_path]
 }
