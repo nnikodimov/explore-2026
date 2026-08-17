@@ -6,7 +6,7 @@ type: Opaque
 data:
   #api_url: <BASE64_ENCODED_IP:PORT_FOR_backend-app-service>
   #api_url: MTcyLjIwLjYzLjIwNzo1MDAw
-  api_url: YmFja2VuZC1hcHAtc2VydmljZS5hY21lLnN2Yy52a3MwMS52Y2YwMS5hbnMubGFiOjUwMDA=
+  api_url: YmFja2VuZC1hcHAtc2VydmljZS5hbHBoYS5zdmMudmtzMDEudmNmMDEuYW5zLmxhYjo1MDAw
 
 ---
 apiVersion: apps/v1
